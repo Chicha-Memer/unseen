@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown & Calendar</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Countdown & Calendar</h1>
+        </header>
+
+        <!-- Plus button for creating new countdown -->
+        <button class="add-countdown-btn" id="add-countdown-btn">+</button>
+
+        <!-- Countdown creation modal -->
+        <div class="modal" id="countdown-modal">
+            <div class="modal-content">
+                <h2>Create New Countdown</h2>
+                <form id="countdown-form">
+                    <div class="form-group">
+                        <label for="countdown-name">Event Name</label>
+                        <input type="text" id="countdown-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="countdown-datetime">Target Date & Time</label>
+                        <input type="datetime-local" id="countdown-datetime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="countdown-image">Background Image</label>
+                        <input type="file" id="countdown-image" accept="image/*">
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-secondary" id="cancel-countdown">Cancel</button>
+                        <button type="submit" class="btn-primary">Create Countdown</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <section class="countdowns-container" id="countdowns">
+            <!-- Countdown cards will be inserted here dynamically -->
+        </section>
+
+        <section class="calendar-section">
+            <h2>Calendar Notes</h2>
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month" class="btn-secondary">&lt;</button>
+                    <h3 id="calendar-month">Month Year</h3>
+                    <button id="next-month" class="btn-secondary">&gt;</button>
+                </div>
+                <div class="calendar-weekdays">
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                </div>
+                <div class="calendar-days" id="calendar-days">
+                    <!-- Calendar days will be inserted here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal for adding notes -->
+        <div class="modal" id="note-modal">
+            <div class="modal-content">
+                <h3>Add Note for <span id="selected-date"></span></h3>
+                <textarea id="note-text" rows="4" placeholder="Write your note here..."></textarea>
+                <div class="modal-buttons">
+                    <button class="btn-secondary" id="cancel-note">Cancel</button>
+                    <button class="btn-primary" id="save-note">Save Note</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

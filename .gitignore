@@ -1,0 +1,23 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# User-specific files
+*.log
+*.tmp
+
+# Directories to ignore
+node_modules/
+dist/
+.vscode/
+.idea/
+
+# Windows specific
+[Aa]pplication Data/
+[Cc]ookies/
+[Ll]ocal Settings/
+[Mm]y Documents/
+[Nn]etHood/
+[Ss]aved Games/
+[Ss]earches/
+ntuser.ini 
