@@ -13,6 +13,16 @@
             <h1>Countdown & Calendar</h1>
         </header>
 
+        <!-- Search and Filter -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="search-input" placeholder="Search countdowns...">
+            <select class="filter-select" id="filter-select">
+                <option value="all">All Countdowns</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
         <!-- Plus button for creating new countdown -->
         <button class="add-countdown-btn" id="add-countdown-btn">+</button>
 
@@ -32,6 +42,15 @@
                     <div class="form-group">
                         <label for="countdown-image">Background Image</label>
                         <input type="file" id="countdown-image" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="countdown-category">Category</label>
+                        <select id="countdown-category">
+                            <option value="general">General</option>
+                            <option value="work">Work</option>
+                            <option value="personal">Personal</option>
+                            <option value="holiday">Holiday</option>
+                        </select>
                     </div>
                     <div class="modal-buttons">
                         <button type="button" class="btn-secondary" id="cancel-countdown">Cancel</button>
@@ -79,6 +98,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal" id="delete-modal">
+            <div class="modal-content">
+                <h3>Delete Countdown</h3>
+                <p>Are you sure you want to delete this countdown?</p>
+                <div class="modal-buttons">
+                    <button class="btn-secondary" id="cancel-delete">Cancel</button>
+                    <button class="btn-primary delete-confirm" id="confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Switcher -->
+        <div class="theme-switcher">
+            <button class="theme-btn" data-theme="light" title="Light Mode">
+                <i class="fas fa-sun"></i>
+            </button>
+            <button class="theme-btn" data-theme="dark" title="Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
     </div>
     <script src="script.js"></script>
 </body>

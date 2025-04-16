@@ -1,4 +1,5 @@
 :root {
+    /* Light theme (default) */
     --primary-color: #4a90e2;
     --secondary-color: #f5f6fa;
     --text-color: #2c3e50;
@@ -6,6 +7,41 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --success-color: #2ecc71;
     --modal-bg: rgba(0, 0, 0, 0.5);
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --hover-color: #e9ecef;
+    --input-bg: #ffffff;
+    --input-border: #e1e8ed;
+    --calendar-bg: #ffffff;
+    --calendar-text: #2c3e50;
+    --calendar-border: #e1e8ed;
+    --calendar-hover: #f5f6fa;
+    --calendar-note: #4a90e2;
+}
+
+[data-theme="dark"] {
+    --primary-color: #60a5fa;
+    --secondary-color: #1f2937;
+    --text-color: #f3f4f6;
+    --border-color: #374151;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --success-color: #34d399;
+    --modal-bg: rgba(0, 0, 0, 0.7);
+    --bg-color: #111827;
+    --card-bg: #1f2937;
+    --hover-color: #374151;
+    --input-bg: #374151;
+    --input-border: #4b5563;
+    --calendar-bg: #1f2937;
+    --calendar-text: #f3f4f6;
+    --calendar-border: #374151;
+    --calendar-hover: #374151;
+    --calendar-note: #60a5fa;
+}
+
+/* Add transition for theme switching */
+body, .countdown-card, .calendar-section, .modal-content, .calendar-day, .calendar-weekdays div, .modal-content, .form-group, input, select, textarea {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 * {
@@ -18,7 +54,7 @@ body {
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background-color: #f8f9fa;
+    background-color: var(--bg-color);
 }
 
 .container {
@@ -171,12 +207,37 @@ input[type="file"] {
     text-transform: uppercase;
 }
 
+.delete-countdown {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
+    z-index: 2;
+}
+
+.delete-countdown:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
 /* Calendar Styles */
 .calendar-section {
-    background: white;
+    background: var(--calendar-bg);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px var(--shadow-color);
+    color: var(--calendar-text);
 }
 
 .calendar-header {
@@ -192,6 +253,7 @@ input[type="file"] {
     text-align: center;
     font-weight: 500;
     margin-bottom: 0.5rem;
+    color: var(--calendar-text);
 }
 
 .calendar-days {
@@ -205,23 +267,25 @@ input[type="file"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--calendar-border);
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
+    color: var(--calendar-text);
 }
 
 .calendar-day:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--calendar-hover);
 }
 
 .calendar-day.has-note {
-    background-color: var(--success-color);
+    background-color: var(--calendar-note);
     color: white;
 }
 
 .calendar-day.other-month {
-    color: #999;
+    color: var(--calendar-text);
+    opacity: 0.5;
 }
 
 /* Modal Styles */
@@ -272,6 +336,23 @@ textarea {
     margin-top: 1.5rem;
 }
 
+/* Delete Confirmation Modal */
+.delete-confirm {
+    background-color: #e74c3c !important;
+    color: white !important;
+}
+
+.delete-confirm:hover {
+    background-color: #c0392b !important;
+}
+
+.modal p {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -301,4 +382,100 @@ textarea {
     .modal-content {
         padding: 1.5rem;
     }
+}
+
+/* Theme Switcher */
+.theme-switcher {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    background: var(--card-bg);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    z-index: 1000;
+}
+
+.theme-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.theme-btn:hover {
+    transform: scale(1.1);
+}
+
+.theme-btn[data-theme="light"] {
+    background: linear-gradient(45deg, #f3f4f6, #ffffff);
+}
+
+.theme-btn[data-theme="dark"] {
+    background: linear-gradient(45deg, #1f2937, #111827);
+}
+
+/* Search and Filter */
+.search-container {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+.filter-select {
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+/* Countdown Completion Animation */
+@keyframes countdownComplete {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0);
+    }
+}
+
+.countdown-complete {
+    animation: countdownComplete 1s ease-in-out;
+    background-color: var(--success-color) !important;
+}
+
+/* Drag and Drop */
+.countdown-card {
+    cursor: move;
+    user-select: none;
+}
+
+.countdown-card.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.countdown-card.over {
+    border: 2px dashed var(--primary-color);
 } 

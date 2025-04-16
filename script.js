@@ -1,12 +1,83 @@
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+
+// Navbar scroll effect
+const navbar = document.querySelector('.navbar');
+let lastScroll = 0;
+
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll <= 0) {
+        navbar.classList.remove('scroll-up');
+        return;
+    }
+    
+    if (currentScroll > lastScroll && !navbar.classList.contains('scroll-down')) {
+        // Scroll Down
+        navbar.classList.remove('scroll-up');
+        navbar.classList.add('scroll-down');
+    } else if (currentScroll < lastScroll && navbar.classList.contains('scroll-down')) {
+        // Scroll Up
+        navbar.classList.remove('scroll-down');
+        navbar.classList.add('scroll-up');
+    }
+    lastScroll = currentScroll;
+});
+
+// Add animation to elements when they come into view
+const animateOnScroll = () => {
+    const elements = document.querySelectorAll('.tokenomics-card, .feature-card');
+    
+    elements.forEach(element => {
+        const elementPosition = element.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (elementPosition < windowHeight - 100) {
+            element.classList.add('animate');
+        }
+    });
+};
+
+window.addEventListener('scroll', animateOnScroll);
+window.addEventListener('load', animateOnScroll);
+
+// Connect Wallet Button Functionality
+const connectWalletBtn = document.querySelector('.btn-secondary');
+if (connectWalletBtn) {
+    connectWalletBtn.addEventListener('click', () => {
+        // This is a placeholder for actual wallet connection logic
+        alert('Wallet connection functionality would be implemented here');
+    });
+}
+
+// Buy Now Button Functionality
+const buyNowBtn = document.querySelector('.btn-primary');
+if (buyNowBtn) {
+    buyNowBtn.addEventListener('click', () => {
+        // This is a placeholder for actual buy functionality
+        alert('Buy functionality would be implemented here');
+    });
+}
+
 // Store countdowns and notes in localStorage
 const STORAGE_KEY = {
     COUNTDOWNS: 'countdowns',
-    NOTES: 'calendar_notes'
+    NOTES: 'calendar_notes',
+    THEME: 'theme'
 };
 
 // Initialize data from localStorage or create empty arrays
 let countdowns = JSON.parse(localStorage.getItem(STORAGE_KEY.COUNTDOWNS) || '[]');
 let calendarNotes = JSON.parse(localStorage.getItem(STORAGE_KEY.NOTES) || '{}');
+let currentTheme = localStorage.getItem(STORAGE_KEY.THEME) || 'light';
 
 // Current date for calendar
 let currentDate = new Date();
@@ -18,41 +89,107 @@ const calendarDaysContainer = document.getElementById('calendar-days');
 const calendarMonthElement = document.getElementById('calendar-month');
 const noteModal = document.getElementById('note-modal');
 const countdownModal = document.getElementById('countdown-modal');
+const deleteModal = document.getElementById('delete-modal');
 const selectedDateElement = document.getElementById('selected-date');
 const noteTextArea = document.getElementById('note-text');
+const searchInput = document.getElementById('search-input');
+const filterSelect = document.getElementById('filter-select');
+const themeButtons = document.querySelectorAll('.theme-btn');
 
-// Event Listeners
-document.getElementById('add-countdown-btn').addEventListener('click', () => {
-    countdownModal.classList.add('active');
+// Initialize theme
+document.documentElement.setAttribute('data-theme', currentTheme);
+
+// Theme switching
+themeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const theme = button.dataset.theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem(STORAGE_KEY.THEME, theme);
+    });
 });
 
-document.getElementById('cancel-countdown').addEventListener('click', () => {
-    countdownModal.classList.remove('active');
-    countdownForm.reset();
-});
+// Search and filter functionality
+function filterCountdowns() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const filterValue = filterSelect.value;
+    
+    const filteredCountdowns = countdowns.filter(countdown => {
+        const matchesSearch = countdown.name.toLowerCase().includes(searchTerm);
+        const matchesFilter = filterValue === 'all' || 
+            (filterValue === 'active' && countdown.targetDate > Date.now()) ||
+            (filterValue === 'completed' && countdown.targetDate <= Date.now());
+        
+        return matchesSearch && matchesFilter;
+    });
+    
+    renderCountdowns(filteredCountdowns);
+}
 
-countdownForm.addEventListener('submit', createCountdown);
-document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
-document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
-document.getElementById('cancel-note').addEventListener('click', closeNoteModal);
-document.getElementById('save-note').addEventListener('click', saveNote);
+searchInput.addEventListener('input', filterCountdowns);
+filterSelect.addEventListener('change', filterCountdowns);
 
-// Close modals when clicking outside
-window.addEventListener('click', (e) => {
-    if (e.target === countdownModal) {
-        countdownModal.classList.remove('active');
-        countdownForm.reset();
+// Drag and drop functionality
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    this.classList.add('over');
+}
+
+function handleDragLeave() {
+    this.classList.remove('over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('over');
+    
+    if (draggedItem !== this) {
+        const countdownsArray = Array.from(countdownsContainer.children);
+        const draggedIndex = countdownsArray.indexOf(draggedItem);
+        const dropIndex = countdownsArray.indexOf(this);
+        
+        // Reorder countdowns array
+        const [movedItem] = countdowns.splice(draggedIndex, 1);
+        countdowns.splice(dropIndex, 0, movedItem);
+        
+        // Save and re-render
+        saveCountdowns();
+        renderCountdowns();
     }
-    if (e.target === noteModal) {
-        closeNoteModal();
-    }
-});
+}
+
+function handleDragEnd() {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.countdown-card').forEach(card => {
+        card.classList.remove('over');
+    });
+}
 
 // Initialize the app
 function init() {
     renderCountdowns();
     renderCalendar();
     startCountdownUpdates();
+    setupDragAndDrop();
+}
+
+function setupDragAndDrop() {
+    document.querySelectorAll('.countdown-card').forEach(card => {
+        card.setAttribute('draggable', true);
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('dragleave', handleDragLeave);
+        card.addEventListener('drop', handleDrop);
+        card.addEventListener('dragend', handleDragEnd);
+    });
 }
 
 // Countdown Functions
@@ -62,27 +199,29 @@ function createCountdown(e) {
     const name = document.getElementById('countdown-name').value;
     const datetime = document.getElementById('countdown-datetime').value;
     const imageFile = document.getElementById('countdown-image').files[0];
+    const category = document.getElementById('countdown-category').value;
     
     if (imageFile) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            addCountdown(name, datetime, e.target.result);
+            addCountdown(name, datetime, e.target.result, category);
         };
         reader.readAsDataURL(imageFile);
     } else {
-        addCountdown(name, datetime);
+        addCountdown(name, datetime, null, category);
     }
     
     countdownForm.reset();
     countdownModal.classList.remove('active');
 }
 
-function addCountdown(name, datetime, imageUrl = null) {
+function addCountdown(name, datetime, imageUrl = null, category = 'general') {
     const countdown = {
         id: Date.now(),
         name,
         targetDate: new Date(datetime).getTime(),
-        imageUrl
+        imageUrl,
+        category
     };
     
     countdowns.push(countdown);
@@ -94,28 +233,36 @@ function saveCountdowns() {
     localStorage.setItem(STORAGE_KEY.COUNTDOWNS, JSON.stringify(countdowns));
 }
 
-function renderCountdowns() {
+function renderCountdowns(countdownsToRender = countdowns) {
     countdownsContainer.innerHTML = '';
     
-    countdowns = countdowns.filter(countdown => {
-        const timeLeft = countdown.targetDate - Date.now();
-        return timeLeft > 0;
-    });
-    
-    countdowns.forEach(countdown => {
+    countdownsToRender.forEach(countdown => {
         const card = createCountdownCard(countdown);
         countdownsContainer.appendChild(card);
     });
     
-    saveCountdowns();
+    setupDragAndDrop();
 }
 
 function createCountdownCard(countdown) {
     const card = document.createElement('div');
     card.className = 'countdown-card';
+    card.dataset.category = countdown.category;
+    
     if (countdown.imageUrl) {
         card.style.backgroundImage = `url(${countdown.imageUrl})`;
     }
+    
+    // Add delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-countdown';
+    deleteBtn.innerHTML = '×';
+    deleteBtn.title = 'Delete countdown';
+    deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        countdownToDelete = countdown.id;
+        deleteModal.classList.add('active');
+    });
     
     const overlay = document.createElement('div');
     overlay.className = 'countdown-overlay';
@@ -124,12 +271,18 @@ function createCountdownCard(countdown) {
     title.className = 'countdown-title';
     title.textContent = countdown.name;
     
+    const category = document.createElement('span');
+    category.className = 'countdown-category';
+    category.textContent = countdown.category;
+    
     const timer = document.createElement('div');
     timer.className = 'countdown-timer';
     timer.dataset.targetDate = countdown.targetDate;
     
     overlay.appendChild(title);
+    overlay.appendChild(category);
     overlay.appendChild(timer);
+    card.appendChild(deleteBtn);
     card.appendChild(overlay);
     
     updateCountdownTimer(timer);
@@ -144,6 +297,7 @@ function updateCountdownTimer(timerElement) {
     
     if (timeLeft <= 0) {
         timerElement.innerHTML = '<div>Countdown ended</div>';
+        timerElement.parentElement.parentElement.classList.add('countdown-complete');
         return false;
     }
     
